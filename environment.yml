@@ -1,0 +1,18 @@
+name: imaxcalib 
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - attrdict=2.0.1
+  - deepdish=0.3.4
+  - matplotlib=3.1.2
+  - matplotlib-base=3.1.2
+  - numpy=1.18.1
+  - pip=20.0.2
+  - python=3.6.10
+  - setuptools=45.2.0
+  - tqdm=4.42.1
+  - pip:  
+      - sklearn
+
+
