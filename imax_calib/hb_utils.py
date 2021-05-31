@@ -274,7 +274,7 @@ def MI_unknown_LLR(p_y_pos, logodds, bin_boundaries, representations):
     """logodds => the logodds which were used to bin. rewrote MI loss: sum_Y sum_B p(y'|lambda)p(lambda) for term outside log. Before it was p(lambda|y')p(y') """
     # NOTE: checked and matches impl of Dan: -1*MI_eval(**kwargs) => all good
     pred_probs = utils.to_sigmoid(logodds)
-    prior_y = io.AttrDict( dict(pos=p_y_pos, neg=1-p_y_pos)  )
+    prior_y = dict(pos=p_y_pos, neg=1-p_y_pos)  
     num_bins = len(bin_boundaries)+1
     # get p(y|lambda)p(lambda).... first get mean pred. prob. per bin
     assigned = bin_data(logodds, bin_boundaries)
@@ -282,7 +282,7 @@ def MI_unknown_LLR(p_y_pos, logodds, bin_boundaries, representations):
     p_y_pos_given_lambda_per_bin = bin_sums_pred_probs_pos / logodds.shape[0]
     bin_sums_pred_probs_neg = np.bincount( assigned, weights=1-pred_probs, minlength=num_bins) # get the reprs in prob space because of mean.
     p_y_neg_given_lambda_per_bin = bin_sums_pred_probs_neg / logodds.shape[0]
-    p_y_given_lambda_dict = io.AttrDict(dict(pos=p_y_pos_given_lambda_per_bin, neg=p_y_neg_given_lambda_per_bin))
+    p_y_given_lambda_dict = dict(pos=p_y_pos_given_lambda_per_bin, neg=p_y_neg_given_lambda_per_bin)
     mi_loss = 0.0
     for binary_class_str, binary_class in zip( ["neg","pos"], [0,1] ):
         terms_in_log = (   1 + np.exp((1-2*binary_class) * representations)  )       *    prior_y[binary_class_str]   # part 3

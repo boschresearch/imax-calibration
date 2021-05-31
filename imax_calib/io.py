@@ -25,15 +25,12 @@ Created on Tue Mar 20 10:03:33 2018
 """
 import os
 import numpy as np
-from attrdict import AttrDict
 import deepdish
 import time
 
 def deepdish_read(fpath, group=None):
     ''' Read all data inside the hdf5 file '''
     data = deepdish.io.load(fpath, group=group)
-    if isinstance(data, dict):
-        data = AttrDict(data)
     return data
 
 def deepdish_write(fpath, data):
@@ -47,7 +44,7 @@ def deepdish_write(fpath, data):
 class Logger:
     def __init__(self, fpath):
         self.fpath = fpath
-        self.logdata = AttrDict({})        
+        self.logdata = {}        
 
     def log(self, key, value):
         if key not in self.logdata:  self.logdata[key] = []
@@ -61,7 +58,6 @@ class Logger:
         suffix = "_%s"%(suffix) if (suffix != "" and suffix[0]!="_") else suffix
         for k,v in dictionary.items():
             self.log(k+suffix,v)
-
 
     def end_log(self):
         for k,v in self.logdata.items():

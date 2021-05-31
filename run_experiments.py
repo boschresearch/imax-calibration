@@ -32,7 +32,7 @@ import imax_calib.evaluations.calibration_metrics as calibration_metrics
 import imax_calib.calibration as calibration
 
 #################################################### Setup Configutations
-cfg = io.AttrDict(dict(
+cfg = dict(
                 # All
                 cal_setting="sCW", # CW, sCW or top1
                 num_bins=15,
@@ -43,7 +43,7 @@ cfg = io.AttrDict(dict(
                 Q_bin_repr_during_optim="pred_prob_based",
                 Q_rnd_seed=928163,
                 Q_init_mode="kmeans",
-                ))
+                )
 
 
 ################################################################################################################################################################################################################################################################################################################
@@ -52,17 +52,17 @@ cfg = io.AttrDict(dict(
 
 data = io.deepdish_read("./data/cifar10_wrn.hdf5")
 rnd_indices = np.loadtxt("./data/rnd_indices_1001.csv", delimiter=',').astype(np.int)
-num_valid_samples = data.logits.shape[0]//2
+num_valid_samples = data["logits"].shape[0]//2
 
-cfg["n_classes"] = data.logits.shape[1]
+cfg["n_classes"] = data["logits"].shape[1]
 
-valid_logits = data.logits[rnd_indices[:num_valid_samples]]
-valid_labels = data.ytrues[rnd_indices[:num_valid_samples]]
+valid_logits = data["logits"][rnd_indices[:num_valid_samples]]
+valid_labels = data["ytrues"][rnd_indices[:num_valid_samples]]
 valid_probs = utils.to_softmax(valid_logits)
 valid_logodds = utils.quick_logits_to_logodds(valid_logits, probs=valid_probs)
 
-test_logits = data.logits[rnd_indices[num_valid_samples:]]
-test_labels = data.ytrues[rnd_indices[num_valid_samples:]]
+test_logits = data["logits"][rnd_indices[num_valid_samples:]]
+test_labels = data["ytrues"][rnd_indices[num_valid_samples:]]
 test_probs = utils.to_softmax(test_logits)
 test_logodds = utils.quick_logits_to_logodds(test_logits, probs=test_probs)
 
@@ -73,7 +73,7 @@ calibrator_obj = calibration.learn_calibrator(cfg,
                                             y=valid_labels, 
                                             )
 
-baseline_obj = calibration.learn_calibrator(io.AttrDict({**cfg, "Q_method": None}), # get function which does nothing to the data 
+baseline_obj = calibration.learn_calibrator({**cfg, "Q_method": None}, # get function which does nothing to the data 
                                             logits=valid_logits, 
                                             logodds=valid_logodds, 
                                             y=valid_labels, 
@@ -86,11 +86,11 @@ baseline_obj = calibration.learn_calibrator(io.AttrDict({**cfg, "Q_method": None
 # Eval
 uncal_logits, uncal_logodds, uncal_probs = baseline_obj(test_logits, test_logodds)
 cal_logits, cal_logodds, cal_probs, assigned = calibrator_obj(test_logits, test_logodds)
-if cfg.cal_setting!="top1":
+if cfg["cal_setting"]!="top1":
     multi_cls_labels = test_labels
-    uncal_evals = calibration_metrics.compute_top_1_and_CW_ECEs(uncal_probs, multi_cls_labels, list_approximators=["dECE"])
+    uncal_evals = calibration_metrics.compute_top_1_and_CW_ECEs(uncal_probs, multi_cls_labels, list_approximators=["dECE", "mECE"])
     print("Un-calibrated (Baseline): ", uncal_evals)
-    cal_evals = calibration_metrics.compute_top_1_and_CW_ECEs(cal_probs, multi_cls_labels, list_approximators=["dECE"])
+    cal_evals = calibration_metrics.compute_top_1_and_CW_ECEs(cal_probs, multi_cls_labels, list_approximators=["dECE", "mECE"])
     print("Calibrated: ", cal_evals)
 else:
     top1_indices = test_logodds.argmax(axis=-1) 

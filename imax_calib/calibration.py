@@ -40,7 +40,7 @@ def learn_calibrator(cfg, logits, logodds, y, feats=None, **kwargs):
 
     Parameters
     ----------
-    cfg: io.AttrDict
+    cfg: dict 
         config dictionary containing all information. 
     logits: numpy ndarray
         raw network logits
@@ -64,16 +64,16 @@ def learn_binning(cfg, logits, logodds, y, **kwargs):
     Same as learn_calibrator() but this func specifically learns the logodds binning methods.
     """
     # set all seeds
-    np.random.seed(cfg.Q_rnd_seed)
+    np.random.seed(cfg["Q_rnd_seed"])
 
-    if cfg.Q_method is None:
+    if cfg["Q_method"] is None:
         CALIBRATOR = scalers_np.Raw
-    elif cfg.Q_method=="imax" or cfg.Q_method=="eqmass" or cfg.Q_method=="eqsize":
-        if cfg.cal_setting=="CW":
+    elif cfg["Q_method"]=="imax" or cfg["Q_method"]=="eqmass" or cfg["Q_method"]=="eqsize":
+        if cfg["cal_setting"]=="CW":
             CALIBRATOR = binners.HistogramBinninerCW
-        elif cfg.cal_setting=="top1":
+        elif cfg["cal_setting"]=="top1":
             CALIBRATOR = binners.HistogramBinninerTop1
-        elif cfg.cal_setting=="sCW":
+        elif cfg["cal_setting"]=="sCW":
             CALIBRATOR = binners.HistogramBinninerSharedCW
     else:
         raise Exception("Quantization method unknown!")

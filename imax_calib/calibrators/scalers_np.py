@@ -78,7 +78,7 @@ class BaseCalibrator():
         -------
         """
         if len(self.parameter_list)>0:
-            data_to_save = io.AttrDict()
+            data_to_save = {} 
             for key in self.parameter_list:
                 data_to_save[key] = getattr(self, key)
             io.deepdish_write(fpath, data_to_save)

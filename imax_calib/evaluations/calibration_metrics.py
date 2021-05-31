@@ -59,7 +59,7 @@ def compute_top_1_and_CW_ECEs(multi_cls_probs, multi_cls_labels, list_approximat
     if len(multi_cls_labels.shape)==1: # not one-hot. so convert to one-hot
         multi_cls_labels = np.eye(multi_cls_probs.shape[1])[multi_cls_labels]
 
-    ece_evals_dict = io.AttrDict({})
+    ece_evals_dict = {}
     
     n_classes = multi_cls_probs.shape[1]
     for ece_approx in list_approximators:

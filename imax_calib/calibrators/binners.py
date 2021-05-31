@@ -48,15 +48,15 @@ class HistogramBinninerCW(BaseCalibrator):
         self.cfg = cfg        
         self.list_binners = []
         self.parameter_list = ["bin_boundaries", "bin_representations_SB", "bin_representations_PPB"]# each individual scalers parameters. will be used to get the attr of each binary object
-        self.binning_stage = cfg.Q_binning_stage 
+        self.binning_stage = cfg["Q_binning_stage"] 
         self.scaler_obj = scaler_obj
         assert self.binning_stage in ["raw", "scaled"]
 
         if self.scaler_obj is None: assert self.binning_stage=="raw", "If no scaler_obj is provided then binning stage can only be RAW logodds"
-        assert self.cfg.cal_setting=="CW"
+        assert self.cfg["cal_setting"]=="CW"
 
-        for class_idx in range(self.cfg.n_classes):
-            histbin_c = _HistogramBinniner_Binary(self.cfg, self.cfg.cal_setting, class_idx, cfg.num_bins, cfg.Q_method, cfg.Q_binning_repr_scheme, cfg.Q_bin_repr_during_optim)
+        for class_idx in range(self.cfg["n_classes"]):
+            histbin_c = _HistogramBinniner_Binary(self.cfg, self.cfg["cal_setting"], class_idx, cfg["num_bins"], cfg["Q_method"], cfg["Q_binning_repr_scheme"], cfg["Q_bin_repr_during_optim"])
             self.list_binners.append(histbin_c)
            
     def fit(self, logits, logodds, y, **kwargs):
@@ -138,9 +138,9 @@ class HistogramBinninerCW(BaseCalibrator):
         For this calibrator (HB-based): overwrite saving/loading functions. Save all binary HB parameters in a single hdf5 file.
         """
         if len(self.parameter_list)>0:
-            data_to_save = io.AttrDict()
+            data_to_save = {} 
             for class_idx, histbin_c in enumerate(self.list_binners):
-                data_to_save["class_%d"%(class_idx)] = io.AttrDict({})
+                data_to_save["class_%d"%(class_idx)] = {} 
                 for key in self.parameter_list: data_to_save["class_%d"%(class_idx)][key] = getattr(histbin_c, key)
             io.deepdish_write(fpath, data_to_save)
 
@@ -160,7 +160,7 @@ class HistogramBinninerCW(BaseCalibrator):
         """ 
         Get all parameters as a dictionary of lists
         """
-        all_params = io.AttrDict()
+        all_params = {} 
         for param_name in self.parameter_list:
             all_params[param_name] = np.array([getattr(histbin_c, param_name) for histbin_c in self.list_binners])
 
@@ -180,14 +180,14 @@ class HistogramBinninerTop1(BaseCalibrator):
         super(HistogramBinninerTop1, self).__init__()
         self.cfg = cfg        
         self.parameter_list = ["bin_boundaries", "bin_representations_SB", "bin_representations_PPB"]# each individual scalers parameters. will be used to get the attr of each binary object
-        self.binning_stage = cfg.Q_binning_stage 
+        self.binning_stage = cfg["Q_binning_stage"] 
         self.scaler_obj = scaler_obj
         assert self.binning_stage in ["raw", "scaled"]
 
         if self.scaler_obj is None: assert self.binning_stage=="raw", "If no scaler_obj is provided then binning stage can only be RAW logodds"
-        assert self.cfg.cal_setting=="top1"
+        assert self.cfg["cal_setting"]=="top1"
 
-        self.histbin_c = _HistogramBinniner_Binary(self.cfg, self.cfg.cal_setting, None, cfg.num_bins, cfg.Q_method, cfg.Q_binning_repr_scheme, cfg.Q_bin_repr_during_optim)
+        self.histbin_c = _HistogramBinniner_Binary(self.cfg, self.cfg["cal_setting"], None, cfg["num_bins"], cfg["Q_method"], cfg["Q_binning_repr_scheme"], cfg["Q_bin_repr_during_optim"])
            
     def fit(self, logits, logodds, y, **kwargs):
         """
@@ -259,7 +259,7 @@ class HistogramBinninerTop1(BaseCalibrator):
         For this calibrator (HB-based): overwrite saving/loading functions. Save all binary HB parameters in a single hdf5 file.
         """
         if len(self.parameter_list)>0:
-            data_to_save = io.AttrDict()
+            data_to_save = {} 
             for key in self.parameter_list: data_to_save[key] = getattr(self.histbin_c, key)
             io.deepdish_write(fpath, data_to_save)
 
@@ -277,7 +277,7 @@ class HistogramBinninerTop1(BaseCalibrator):
         """ 
         Get all parameters as a dictionary of lists
         """
-        all_params = io.AttrDict()
+        all_params = {} 
         for param_name in self.parameter_list:
             all_params[param_name] = np.array([getattr(self.histbin_c, param_name),])
 
@@ -298,14 +298,14 @@ class HistogramBinninerSharedCW(BaseCalibrator):
         super(HistogramBinninerSharedCW, self).__init__()
         self.cfg = cfg        
         self.parameter_list = ["bin_boundaries", "bin_representations_SB", "bin_representations_PPB"]# each individual scalers parameters. will be used to get the attr of each binary object
-        self.binning_stage = cfg.Q_binning_stage 
+        self.binning_stage = cfg["Q_binning_stage"] 
         self.scaler_obj = scaler_obj
         assert self.binning_stage in ["raw", "scaled"]
 
         if self.scaler_obj is None: assert self.binning_stage=="raw", "If no scaler_obj is provided then binning stage can only be RAW logodds"
-        assert self.cfg.cal_setting=="sCW"
+        assert self.cfg["cal_setting"]=="sCW"
 
-        self.histbin_c = _HistogramBinniner_Binary(self.cfg, cfg.cal_setting, None, cfg.num_bins, cfg.Q_method, cfg.Q_binning_repr_scheme, cfg.Q_bin_repr_during_optim)
+        self.histbin_c = _HistogramBinniner_Binary(self.cfg, cfg["cal_setting"], None, cfg["num_bins"], cfg["Q_method"], cfg["Q_binning_repr_scheme"], cfg["Q_bin_repr_during_optim"])
            
     def fit(self, logits, logodds, y, **kwargs):
         """
@@ -372,7 +372,7 @@ class HistogramBinninerSharedCW(BaseCalibrator):
         cal_logodds = np.zeros_like(logodds)
         cal_probs = np.zeros_like(logodds)
         cal_assigned = np.zeros_like(logodds, dtype=np.int)
-        for class_idx in range(self.cfg.n_classes):
+        for class_idx in range(self.cfg["n_classes"]):
 
             # create a temp calib obj which will calibrate each class using the same binning parameters!
             temp_histbin_c = _HistogramBinniner_Binary(self.cfg, cal_setting="CW", class_idx=class_idx, 
@@ -392,7 +392,7 @@ class HistogramBinninerSharedCW(BaseCalibrator):
         For this calibrator (HB-based): overwrite saving/loading functions. Save all binary HB parameters in a single hdf5 file.
         """
         if len(self.parameter_list)>0:
-            data_to_save = io.AttrDict()
+            data_to_save = {} 
             for key in self.parameter_list: data_to_save[key] = getattr(self.histbin_c, key)
             io.deepdish_write(fpath, data_to_save)
 
@@ -410,7 +410,7 @@ class HistogramBinninerSharedCW(BaseCalibrator):
         """ 
         Get all parameters as a dictionary of lists
         """
-        all_params = io.AttrDict()
+        all_params = {} 
         for param_name in self.parameter_list:
             all_params[param_name] = np.array([getattr(self.histbin_c, param_name),])
 
@@ -439,7 +439,7 @@ class _HistogramBinniner_Binary(BaseCalibrator):
 
         Parameters
         ----------
-        cfg: io.AttriDict
+        cfg: Dict 
             all configs from main script.
         class_idx: int or None
             determines which class this obj will bin
@@ -493,10 +493,10 @@ class _HistogramBinniner_Binary(BaseCalibrator):
         logodds_for_bin_reprs, _ = utils.binary_convertor( logodds_for_bin_reprs, None, self.cal_setting, self.class_idx)
         
         if self.binning_scheme=="imax":
-            log = run_imax(logodds, y, self.num_bins, num_steps=200, init_mode=self.cfg.Q_init_mode, bin_repr_during_optim=self.bin_repr_during_optim, log_every_steps=100)
-            self.bin_boundaries = log.bin_boundaries[-1]
-            self.MI = log.MI
-            self.Rbitrate = log.Rbitrate
+            log = run_imax(logodds, y, self.num_bins, num_steps=200, init_mode=self.cfg["Q_init_mode"], bin_repr_during_optim=self.bin_repr_during_optim, log_every_steps=100)
+            self.bin_boundaries = log["bin_boundaries"][-1]
+            self.MI = log["MI"]
+            self.Rbitrate = log["Rbitrate"]
         elif self.binning_scheme=="eqmass" or self.binning_scheme=="eqsize" or "custom_range" in self.binning_scheme:
             self.bin_boundaries = hb_utils.nolearn_bin_boundaries(self.num_bins, binning_scheme=self.binning_scheme, x=logodds)
 
@@ -718,7 +718,7 @@ def fit_kde_distributions(logodds, y):
     """
     distr_pos = scipy.stats.gaussian_kde(logodds[y==1])
     distr_neg = scipy.stats.gaussian_kde(logodds[y==0])
-    return io.AttrDict({"pos":distr_pos, "neg":distr_neg})
+    return {"pos":distr_pos, "neg":distr_neg}
    
 
 
