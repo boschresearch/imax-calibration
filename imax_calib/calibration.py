@@ -25,27 +25,24 @@
  Created by Kanil Patel on 07/28/20.
  Copyright 2020. Kanil Patel. All rights reserved.
 '''
-import os
 import numpy as np
-import imax_calib.io as io
-import imax_calib.utils as utils
 import imax_calib.calibrators.binners as binners
-import imax_calib.calibrators.scalers_np as scalers_np 
+import imax_calib.calibrators.scalers_np as scalers_np
 
 def learn_calibrator(cfg, logits, logodds, y, feats=None, **kwargs):
     """
     Use this function to access all calibrators (binning).
     Inputs are the raw network logits and one-hot labels.
-    The kwargs can be used to send other arguments which some calibrators might need. 
+    The kwargs can be used to send other arguments which some calibrators might need.
 
     Parameters
     ----------
-    cfg: dict 
-        config dictionary containing all information. 
+    cfg: dict
+        config dictionary containing all information.
     logits: numpy ndarray
         raw network logits
     logodds: numpy ndarray
-        raw network logodds. use utils.quick_logits_to_logodds(logits) to get them 
+        raw network logodds. use utils.quick_logits_to_logodds(logits) to get them
     y: numpy ndarray
         one-hot target labels
     kwargs: dict
@@ -57,7 +54,8 @@ def learn_calibrator(cfg, logits, logodds, y, feats=None, **kwargs):
         calibrator object. can be used given logits as input
     """
     binner_obj = learn_binning(cfg, logits, logodds, y, **kwargs)
-    return binner_obj 
+    return binner_obj
+
 
 def learn_binning(cfg, logits, logodds, y, **kwargs):
     """
@@ -68,12 +66,12 @@ def learn_binning(cfg, logits, logodds, y, **kwargs):
 
     if cfg["Q_method"] is None:
         CALIBRATOR = scalers_np.Raw
-    elif cfg["Q_method"]=="imax" or cfg["Q_method"]=="eqmass" or cfg["Q_method"]=="eqsize":
-        if cfg["cal_setting"]=="CW":
+    elif cfg["Q_method"] == "imax" or cfg["Q_method"] == "eqmass" or cfg["Q_method"] == "eqsize":
+        if cfg["cal_setting"] == "CW":
             CALIBRATOR = binners.HistogramBinninerCW
-        elif cfg["cal_setting"]=="top1":
+        elif cfg["cal_setting"] == "top1":
             CALIBRATOR = binners.HistogramBinninerTop1
-        elif cfg["cal_setting"]=="sCW":
+        elif cfg["cal_setting"] == "sCW":
             CALIBRATOR = binners.HistogramBinninerSharedCW
     else:
         raise Exception("Quantization method unknown!")
@@ -82,39 +80,3 @@ def learn_binning(cfg, logits, logodds, y, **kwargs):
     print("Learning calibration parameters!")
     cal_obj.fit(logits, logodds, y, **kwargs)
     return cal_obj
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

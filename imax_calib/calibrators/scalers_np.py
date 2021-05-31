@@ -27,14 +27,15 @@ All calibration methods which require numpy functions during learning of paramet
  Created by Kanil Patel on 07/27/20.
  Copyright 2020. Kanil Patel. All rights reserved.
 '''
-import numpy as np
 import imax_calib.io as io
 import imax_calib.utils as utils
 
+
 class BaseCalibrator():
     """
-    A generic base class.   
+    A generic base class.
     """
+
     def __init__(self):
         self.parameter_list = []
 
@@ -45,9 +46,9 @@ class BaseCalibrator():
         Parameters
         ----------
         logits: numpy ndarray
-            input data to the calibrator. 
+            input data to the calibrator.
         logodds: numpy ndarray
-            input data to the calibrator. 
+            input data to the calibrator.
         y: numpy ndarray
             target labels
         Returns
@@ -68,7 +69,7 @@ class BaseCalibrator():
     def save_params(self, fpath):
         """
         Save the parameters of the model. The parameters which need to be saved are determined by self.parameter_list.
-        Saves a single hdf5 file with keys being the parameter names. 
+        Saves a single hdf5 file with keys being the parameter names.
 
         Parameters
         ----------
@@ -77,17 +78,17 @@ class BaseCalibrator():
         Returns
         -------
         """
-        if len(self.parameter_list)>0:
-            data_to_save = {} 
+        if len(self.parameter_list) > 0:
+            data_to_save = {}
             for key in self.parameter_list:
                 data_to_save[key] = getattr(self, key)
             io.deepdish_write(fpath, data_to_save)
-            print(io.pc._OKGREEN("Parameters written to fpath: %s"%(fpath)))
+            print(("Parameters written to fpath: %s" % (fpath)))
 
     def load_params(self, fpath):
         """
         Load the parameters of the model. The parameters which need to be loaded are determined by self.parameter_list.
-        Loads a single hdf5 file and assigns the attributes to the object using keys as the parameter names. 
+        Loads a single hdf5 file and assigns the attributes to the object using keys as the parameter names.
 
         Parameters
         ----------
@@ -96,19 +97,18 @@ class BaseCalibrator():
         Returns
         -------
         """
-        if len(self.parameter_list)>0:
+        if len(self.parameter_list) > 0:
             data_to_load = io.deepdish_read(fpath)
             for key in self.parameter_list:
                 setattr(self, key, data_to_load[key])
-            print(io.pc._OKGREEN("Parameters loaded and updated from fpath: %s"%(fpath)))
-
-
+            print(("Parameters loaded and updated from fpath: %s" % (fpath)))
 
 
 class Raw(BaseCalibrator):
     """
     The raw outputs without any calibration. Identity function.
     """
+
     def __init__(self, cfg=None):
         super(Raw).__init__()
 
@@ -121,40 +121,3 @@ class Raw(BaseCalibrator):
 
     def load_params(self, fpath):
         return None
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

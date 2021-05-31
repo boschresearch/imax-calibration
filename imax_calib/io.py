@@ -23,31 +23,29 @@ Created on Tue Mar 20 10:03:33 2018
 
 @author: pak2rng
 """
-import os
-import numpy as np
 import deepdish
-import time
+import numpy as np
+
 
 def deepdish_read(fpath, group=None):
     ''' Read all data inside the hdf5 file '''
     data = deepdish.io.load(fpath, group=group)
     return data
 
+
 def deepdish_write(fpath, data):
     ''' Save a dictionary as a hdf5 file! '''
-    create_dir_for_fpath(fpath)
     deepdish.io.save(fpath, data, compression="None")
-    
-
 
 
 class Logger:
     def __init__(self, fpath):
         self.fpath = fpath
-        self.logdata = {}        
+        self.logdata = {}
 
     def log(self, key, value):
-        if key not in self.logdata:  self.logdata[key] = []
+        if key not in self.logdata:
+            self.logdata[key] = []
         self.logdata[key].append(value)
 
     def last(self, key):
@@ -55,26 +53,13 @@ class Logger:
 
     def log_dict(self, dictionary, suffix=""):
         # logging each element in the dictionary
-        suffix = "_%s"%(suffix) if (suffix != "" and suffix[0]!="_") else suffix
-        for k,v in dictionary.items():
-            self.log(k+suffix,v)
+        suffix = "_%s" % (suffix) if (suffix != "" and suffix[0] != "_") else suffix
+        for k, v in dictionary.items():
+            self.log(k+suffix, v)
 
     def end_log(self):
-        for k,v in self.logdata.items():
+        for k, v in self.logdata.items():
             self.logdata[k] = np.array(v) if isinstance(v, list) else v
 
     def save_log(self):
         deepdish_write(self.fpath, self.logdata)
-
-
-
-
-
-
-
-
-
-
-
-
-
